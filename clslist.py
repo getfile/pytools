@@ -19,6 +19,7 @@ class Cls:
 		self.clsFile = ""  #类所在文件
 		self.clsParent = []  #父类集
 		self.clsChilds = []  #子类集
+		self.isEmbed = False  #是否是内部类
 		self.rect = pygame.Rect(0, 0, 50, 20)
 
 	@staticmethod
@@ -39,6 +40,7 @@ class Cls:
 		for line in lines:
 			l = line.strip()
 			if not l.startswith(b"class ") or not l.endswith(b":"): continue
+			if line.find(b"class") > 2: continue  #认为是内部类
 			if l.find(b"{") > 0: continue
 			l = l[6:]
 			l = l.replace(b" ", b"")
@@ -67,7 +69,9 @@ class Cls:
 	@staticmethod
 	def showClsTree():
 		""" 显示类继承树 """
-		print("all class num:", len(Cls.clsList))
+		out = "all class num: {:d}\n".format(len(Cls.clsList))
+		out += "======================\n"
+		Cls.clsOut += out
 		Cls._toClsTree()
 		for item in Cls.clsList:
 			if len(item.clsParent) > 0: continue
@@ -78,7 +82,7 @@ class Cls:
 
 	@staticmethod
 	def getClsList(pathname, tabs=""):
-		""" 收集文件 """
+		""" 收集文件,并解析 """
 		allitem = [pathname + "/" + item for item in os.listdir(pathname)]
 		for item in allitem:
 			filename = os.path.basename(item)
@@ -94,7 +98,7 @@ class Cls:
 		""" 显示子树 """
 		# print(tabs, str(item.clsName), "\t\t", item.clsFile)
 		# print("%s %s \t\t %s" % (tabs, item.clsName, item.clsFile))
-		out = "{p1:50} file:///{p2}\n".format(p1=tabs + str(item.clsName), p2=item.clsFile)
+		out = "{p1:50.50} file:///{p2}\n".format(p1=(len(tabs) * "|   ") + str(item.clsName, encoding="utf-8"), p2=item.clsFile)
 		Cls.clsOut += out
 		for c in item.clsChilds:
 			Cls._showTree(c, tabs + "\t")
@@ -130,8 +134,8 @@ class Cls:
 if __name__ == "__main__":
 
 	# Cls.getClsList("d:/projectcpp/testPython/battle_city")
-	Cls.getClsList("d:/projectCpp/gameLib/panda3d/ursina-master/ursina")
-	# Cls.getClsList("d:/projectCpp/gameLib/panda3d/panda3d-master/direct/src")
+	# Cls.getClsList("d:/projectCpp/gameLib/panda3d/ursina-master/ursina")
+	Cls.getClsList("d:/projectCpp/gameLib/panda3d/panda3d-master/direct/src")
 
 	# Cls.parse("D:/projectCpp/gameLib/panda3d/panda3d-master/direct/src/showbase/Factory.py")
 
